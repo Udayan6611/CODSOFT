@@ -25,11 +25,11 @@ Here’s how various features influenced movie ratings:
 
 | Rating vs. Year | Rating vs. Duration |
 |-----------------|---------------------|
-| ![](visuals/IMDb_Rating_vs._Release_Year.png) | ![](visuals/IMDb_Rating_vs._Movie_Duration.png) |
+| ![](visuals/3.Movie_Rating_vs._Numerical_Features/IMDb_Rating_vs._Release_Year.png) | ![](visuals/3.Movie_Rating_vs._Numerical_Features/IMDb_Rating_vs._Movie_Duration.png) |
 
 | Rating vs. Log(Votes) | Rating by Top Genres |
 |-----------------------|----------------------|
-| ![](visuals/IMDb_Rating_vs._Votes.png) | ![](visuals/4.IMDb_Rating_Distribution_by_Top_Genres.png) |
+| ![](visuals/3.Movie_Rating_vs._Numerical_Features/IMDb_Rating_vs._Votes.png) | ![](visuals/4.IMDb_Rating_Distribution_by_Top_Genres.png) |
 
 | Average Rating by Top Directors |
 |---------------------------------|
