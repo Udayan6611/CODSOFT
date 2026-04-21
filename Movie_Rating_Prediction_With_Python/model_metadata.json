@@ -1,0 +1,119 @@
+{
+  "best_model": "XGBoost",
+  "features": [
+    "Year",
+    "Duration",
+    "Genre",
+    "Votes",
+    "Director"
+  ],
+  "top_genres": [
+    "Drama",
+    "Action",
+    "Comedy",
+    "Crime",
+    "Romance",
+    "Horror",
+    "Adventure",
+    "Documentary",
+    "Thriller",
+    "Musical",
+    "Unknown",
+    "Biography",
+    "Family",
+    "Mystery",
+    "Animation",
+    "Fantasy",
+    "History",
+    "Sci-Fi",
+    "Music",
+    "War",
+    "Sport"
+  ],
+  "top_directors": [
+    "Mahesh Bhatt",
+    "David Dhawan",
+    "Hrishikesh Mukherjee",
+    "Shakti Samanta",
+    "Kanti Shah",
+    "Rama Rao Tatineni",
+    "Ram Gopal Varma",
+    "Basu Chatterjee",
+    "Shibu Mitra",
+    "Vikram Bhatt",
+    "Raj N. Sippy",
+    "Priyadarshan",
+    "K. Bapaiah",
+    "K. Raghavendra Rao",
+    "T.L.V. Prasad",
+    "Harmesh Malhotra",
+    "Shantaram Rajaram Vankudre",
+    "Raj Khosla",
+    "Shyam Ramsay",
+    "Satyen Bose",
+    "Babubhai Mistry",
+    "Ravikant Nagaich",
+    "Yash Chopra",
+    "Shyam Benegal",
+    "Manmohan Desai",
+    "Prakash Mehra",
+    "B.R. Ishara",
+    "Partho Ghosh",
+    "Subhash Ghai",
+    "Saawan Kumar Tak",
+    "Kedar Kapoor",
+    "Gulzar",
+    "Dev Anand",
+    "Mahesh Manjrekar",
+    "K.C. Bokadia",
+    "Pramod Chakravorty",
+    "Ravi Tandon",
+    "J. Om Prakash",
+    "Mehul Kumar",
+    "Abbas Alibhai Burmawalla",
+    "Brij",
+    "Rajkumar Kohli",
+    "Rahul Rawail",
+    "Anil Ganguly",
+    "B.R. Chopra",
+    "Deepak Bahry",
+    "A. Bhimsingh",
+    "Lawrence D'Souza",
+    "Mohan Segal",
+    "Nanabhai Bhatt"
+  ],
+  "year_range": [
+    1917,
+    2021
+  ],
+  "duration_range": [
+    21,
+    321
+  ],
+  "votes_range": [
+    5,
+    591417
+  ],
+  "metrics": [
+    {
+      "Model": "XGBoost",
+      "RMSE": 1.0870565648374169,
+      "R2": 0.3643896061026616
+    },
+    {
+      "Model": "Random Forest",
+      "RMSE": 1.1074032024935994,
+      "R2": 0.34037325753424197
+    },
+    {
+      "Model": "KNN",
+      "RMSE": 1.1733138996500194,
+      "R2": 0.2595169268838534
+    },
+    {
+      "Model": "Linear Regression",
+      "RMSE": 1.367274610258504,
+      "R2": -0.005537340248459532
+    }
+  ]
+}

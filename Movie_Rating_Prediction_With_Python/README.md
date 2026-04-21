@@ -1,119 +1,168 @@
-# 🎬 Movie Rating Prediction | Data Science Project
+# Movie Rating Prediction with Python
 
-This project predicts IMDb movie ratings using real-world movie data and various machine learning regression techniques.
+End-to-end machine learning project that predicts IMDb movie ratings from structured movie metadata.
 
-Going beyond basic prediction, this project:
-- 📊 Visualizes how year, duration, genre, votes, and director influence movie ratings.
-- 🧠 Compares multiple ML regression models and selects the best performer.
-- 💡 Deploys an interactive **Streamlit app** for real-time rating prediction.
+This repository includes:
+- EDA and training notebook with chart exports
+- best-model pipeline export for inference
+- production-ready Streamlit app for public deployment
+- deployment-focused setup for Streamlit Community Cloud
 
----
+## Problem Statement
 
-## 📌 Problem Statement
+Can we predict IMDb rating using movie features such as:
+- release year
+- duration
+- genre
+- votes
+- director
 
-> Can we predict a movie's IMDb rating based on its attributes such as release year, duration, genre, number of votes, and director?
+## Project Structure
 
----
+```text
+Movie_Rating_Prediction_With_Python/
+├── IMDb_Movies_India.csv
+├── movie_rating_EDA_training.ipynb
+├── movie_rating_prediction_pipeline.pkl
+├── model_metadata.json
+├── movie_rating_app.py
+├── requirements.txt
+├── README.md
+└── visuals/
+```
 
-## 📈 Exploratory Data Analysis
+## Dataset and Preprocessing
 
-Here’s how various features influenced movie ratings:
+Source file: `IMDb_Movies_India.csv`
 
-| Rating Distribution | Correlation Matrix |
-|---------------------|--------------------|
-| ![](visuals/1.Distribution_Of_Movie_Rating.png) | ![](visuals/2.Correlation_Heatmap.png) |
+Notebook preprocessing includes:
+- parsing `Year` from bracketed values like `(2019)`
+- extracting numeric minutes from `Duration`
+- removing commas and converting `Votes` to numeric
+- filling missing text fields for `Genre` and `Director`
+- dropping rows with missing target `Rating`
 
-| Rating vs. Year | Rating vs. Duration |
-|-----------------|---------------------|
-| ![](visuals/3.Movie_Rating_vs._Numerical_Features/IMDb_Rating_vs._Release_Year.png) | ![](visuals/3.Movie_Rating_vs._Numerical_Features/IMDb_Rating_vs._Movie_Duration.png) |
+## EDA and Visual Analytics
 
-| Rating vs. Log(Votes) | Rating by Top Genres |
-|-----------------------|----------------------|
-| ![](visuals/3.Movie_Rating_vs._Numerical_Features/IMDb_Rating_vs._Votes.png) | ![](visuals/4.IMDb_Rating_Distribution_by_Top_Genres.png) |
+Generated and saved by notebook:
 
-| Average Rating by Top Directors |
-|---------------------------------|
-| ![](visuals/5.Average_IMDb_Rating_by_Top_Directors.png) |
+1. Distribution of IMDb ratings  
+![Distribution](visuals/1.Distribution_Of_Movie_Rating.png)
 
----
+2. Correlation heatmap for numeric features  
+![Correlation](visuals/2.Correlation_Heatmap.png)
 
-## 🧠 Machine Learning Models
+3. Rating vs release year  
+![Year](visuals/3.Movie_Rating_vs._Numerical_Features/IMDb_Rating_vs._Release_Year.png)
 
-| Model                   | Status      |
-|-------------------------|-------------|
-| ✅ XGBoost Regressor    | ✅ **Saved + Deployed** |
-| Random Forest Regressor | ✅ Trained  |
-| Linear Regression       | ✅ Trained  |
-| k-NN (k=5) Regressor    | ✅ Trained  |
+4. Rating vs duration  
+![Duration](visuals/3.Movie_Rating_vs._Numerical_Features/IMDb_Rating_vs._Movie_Duration.png)
 
-We trained and evaluated all four models using Root Mean Squared Error (RMSE) and R-squared ($R^2$) metrics. **XGBoost Regressor** was selected for its superior performance.
+5. Rating vs log(votes)  
+![Votes](visuals/3.Movie_Rating_vs._Numerical_Features/IMDb_Rating_vs._Votes.png)
 
----
+6. Rating distribution by top genres  
+![Genres](visuals/4.IMDb_Rating_Distribution_by_Top_Genres.png)
 
-## 💻 Streamlit Web App (Local)
+7. Average rating by top directors  
+![Directors](visuals/5.Average_IMDb_Rating_by_Top_Directors.png)
 
-You can run the prediction app on your machine using:
+## Model Training and Results
+
+Models trained and compared:
+- Linear Regression
+- K-Nearest Neighbors Regressor
+- Random Forest Regressor
+- XGBoost Regressor
+
+Latest notebook run metrics:
+
+| Model | RMSE | R2 |
+|---|---:|---:|
+| XGBoost | 1.0871 | 0.3644 |
+| Random Forest | 1.1074 | 0.3404 |
+| KNN | 1.1733 | 0.2595 |
+| Linear Regression | 1.3673 | -0.0055 |
+
+Selected best model: **XGBoost**
+
+Exported artifacts:
+- `movie_rating_prediction_pipeline.pkl`
+- `model_metadata.json`
+
+## Streamlit App
+
+App file: `movie_rating_app.py`
+
+Features:
+- fast local model loading with `st.cache_resource`
+- cached metadata with `st.cache_data`
+- dynamic input controls driven by `model_metadata.json`
+- no network dependency for inference (all local artifacts)
+- cloud-friendly startup behavior
+
+Run locally:
 
 ```bash
 streamlit run movie_rating_app.py
 ```
 
----
-
-## Setup and Installation
-To run this project locally, follow these steps:
-
-**Clone the repository:**
+## Installation
 
 ```bash
-git clone https://github.com/your-username/Movie_Rating_Prediction_With_Python.git
+git clone https://github.com/<your-username>/Movie_Rating_Prediction_With_Python.git
 cd Movie_Rating_Prediction_With_Python
+python -m venv .venv
 ```
 
-(Replace your-username with your GitHub username)
-
-**Create a virtual environment (recommended):**
+Windows:
 
 ```bash
-python -m venv venv
-# On Windows:
-.\venv\Scripts\activate
-# On macOS/Linux:
-source venv/bin/activate
+.venv\Scripts\activate
 ```
 
-**Install the required libraries:**
+macOS/Linux:
 
 ```bash
-pip install pandas scikit-learn xgboost matplotlib seaborn streamlit joblib
+source .venv/bin/activate
 ```
 
----
-
-## Usage
-
-**1. Run the EDA and Train the Model**
-Execute the movie_rating_EDA_training.py script. This will:
-
-Perform data cleaning and preprocessing.
-
-Generate and display the EDA visualizations (plots will open in separate windows or appear inline if in a notebook).
-
-Train the specified machine learning models.
-
-Evaluate their performance.
-
-Save the best-performing model pipeline (movie_rating_prediction_pipeline.pkl) to your project directory.
-
-python movie_rating_EDA_training.py
-
-**2. Run the Prediction Web Application**
-Once the movie_rating_prediction_pipeline.pkl file is generated, you can run the Streamlit application:
+Install dependencies:
 
 ```bash
-streamlit run movie_rating_app.py
-``` 
+pip install -r requirements.txt
+```
 
-This command will open the Streamlit app in your web browser, where you can input movie details and get real-time rating predictions.
+## Reproducible Full Pipeline (Notebook)
 
----
+Open and run `movie_rating_EDA_training.ipynb` from top to bottom.
+
+It will:
+- clean and prepare the dataset
+- generate and save all visual charts in `visuals/`
+- train and evaluate all regression models
+- save best pipeline and metadata files
+
+## Streamlit Community Cloud Deployment
+
+1. Push this folder to GitHub.
+2. Open Streamlit Community Cloud.
+3. Create new app from your repository.
+4. Set main file path: `movie_rating_app.py`.
+5. Deploy.
+
+Recommended for stable loading:
+- keep model and metadata files inside repo
+- avoid runtime downloads or API calls
+- avoid network loops inside app startup
+- keep heavy training logic out of app (done in notebook)
+- pin dependencies in `requirements.txt`
+
+## Resume-Friendly Notes
+
+This project demonstrates:
+- data cleaning of noisy real-world movie data
+- statistical visual analysis and feature interpretation
+- multi-model regression benchmarking
+- deployment-ready ML app engineering with Streamlit caching
+- reliable public portfolio deployment design

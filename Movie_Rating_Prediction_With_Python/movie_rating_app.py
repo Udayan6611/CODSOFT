@@ -1,59 +1,130 @@
-import streamlit as st
+import json
+from pathlib import Path
+
 import joblib
 import pandas as pd
-import numpy as np
+import streamlit as st
 
-MODEL_PATH = 'movie_rating_prediction_pipeline.pkl'
-DEFAULT_GENRES = ["Action", "Drama", "Comedy", "Thriller", "Romance", "Crime", "Horror", "Sci-Fi", "Mystery", "Adventure", "Fantasy", "Family", "Animation", "Biography", "History", "War", "Music", "Sport", "Documentary", "Musical", "Western"]
-DEFAULT_DIRECTORS = ["Director A", "Director B", "Director C", "Director D", "Director E", "Unknown"]
+MODEL_PATH = Path("movie_rating_prediction_pipeline.pkl")
+METADATA_PATH = Path("model_metadata.json")
+FALLBACK_GENRES = [
+    "Drama",
+    "Action",
+    "Comedy",
+    "Crime",
+    "Romance",
+    "Horror",
+    "Thriller",
+    "Adventure",
+    "Documentary",
+]
 
-try:
-    pipeline = joblib.load(MODEL_PATH)
-except FileNotFoundError:
-    st.error(f"Error: Model file '{MODEL_PATH}' not found. Please ensure the trained pipeline is saved.")
-    st.stop()
-except Exception as e:
-    st.error(f"Error loading model: {e}")
-    st.stop()
+
+@st.cache_resource(show_spinner=False)
+def load_pipeline() -> object:
+    return joblib.load(MODEL_PATH)
+
+
+@st.cache_data(show_spinner=False)
+def load_metadata() -> dict:
+    if METADATA_PATH.exists():
+        with METADATA_PATH.open("r", encoding="utf-8") as f:
+            return json.load(f)
+    return {}
+
+
+def clamp(value: int, lower: int, upper: int) -> int:
+    return max(lower, min(value, upper))
+
 
 st.set_page_config(page_title="Movie Rating Predictor", layout="centered")
+st.title("Movie Rating Predictor")
+st.caption("Fast local inference with a pre-trained pipeline for Streamlit Community Cloud")
 
-st.title("🎬 Movie Rating Predictor")
-st.markdown("""
-    Enter the details of a movie below to get a predicted IMDb rating.
-    The model uses features like year, duration, genre, votes, and director.
-""")
+if not MODEL_PATH.exists():
+    st.error(
+        "Model file missing: movie_rating_prediction_pipeline.pkl. "
+        "Run the notebook once to generate it before deployment."
+    )
+    st.stop()
 
-st.header("Movie Details")
+try:
+    pipeline = load_pipeline()
+except Exception as err:
+    st.error(f"Failed to load pipeline: {err}")
+    st.stop()
 
-year = st.slider("Release Year", min_value=1900, max_value=2025, value=2020, step=1)
+metadata = load_metadata()
+year_range = metadata.get("year_range", [1930, 2025])
+duration_range = metadata.get("duration_range", [60, 240])
+votes_range = metadata.get("votes_range", [0, 1_000_000])
+top_genres = metadata.get("top_genres", FALLBACK_GENRES)
+top_directors = metadata.get("top_directors", ["Unknown"])
+metrics = metadata.get("metrics", [])
 
-duration = st.number_input("Duration (minutes)", min_value=10, max_value=300, value=120, step=5)
+year_min, year_max = int(year_range[0]), int(year_range[1])
+duration_min, duration_max = int(duration_range[0]), int(duration_range[1])
+votes_min, votes_max = int(votes_range[0]), int(votes_range[1])
 
-genre = st.selectbox("Genre", DEFAULT_GENRES)
+st.markdown("Predict an IMDb rating using movie metadata (year, duration, genre, votes, and director).")
 
-votes = st.number_input("Number of Votes (e.g., 10000 for 10,000 votes)", min_value=0, max_value=10000000, value=10000, step=1000)
+with st.form("prediction_form"):
+    col1, col2 = st.columns(2)
+    with col1:
+        year = st.slider(
+            "Release Year",
+            min_value=year_min,
+            max_value=year_max,
+            value=clamp(2018, year_min, year_max),
+            step=1,
+        )
+        duration = st.slider(
+            "Duration (minutes)",
+            min_value=duration_min,
+            max_value=duration_max,
+            value=clamp(130, duration_min, duration_max),
+            step=1,
+        )
+    with col2:
+        votes = st.slider(
+            "Votes",
+            min_value=votes_min,
+            max_value=votes_max,
+            value=clamp(5000, votes_min, votes_max),
+            step=max(1, (votes_max - votes_min) // 1000),
+        )
+        genre = st.selectbox("Main Genre", options=top_genres, index=0)
 
-director = st.text_input("Director's Name (e.g., 'Christopher Nolan')", value="Unknown")
+    director = st.selectbox("Director (Top Known)", options=top_directors, index=0)
+    custom_director = st.text_input("Or type a different director", value="")
 
-if st.button("Predict Rating"):
-    input_data = pd.DataFrame([{
-        'Year': year,
-        'Duration': duration,
-        'Genre': genre,
-        'Votes': votes,
-        'Director': director
-    }])
+    submitted = st.form_submit_button("Predict IMDb Rating")
+
+if submitted:
+    selected_director = custom_director.strip() if custom_director.strip() else director
+    input_data = pd.DataFrame(
+        [
+            {
+                "Year": int(year),
+                "Duration": int(duration),
+                "Genre": str(genre),
+                "Votes": int(votes),
+                "Director": str(selected_director),
+            }
+        ]
+    )
 
     try:
-        predicted_rating = pipeline.predict(input_data)[0]
+        predicted_rating = float(pipeline.predict(input_data)[0])
+        predicted_rating = clamp(int(round(predicted_rating * 100)), 0, 1000) / 100
+        st.success(f"Predicted IMDb Rating: {predicted_rating:.2f} / 10")
+    except Exception as err:
+        st.error(f"Prediction failed: {err}")
 
-        st.success(f"### Predicted IMDb Rating: {predicted_rating:.2f} / 10.0")
-        st.info("Note: This is a prediction based on the trained model and available features.")
-
-    except Exception as e:
-        st.error(f"An error occurred during prediction: {e}")
-        st.warning("Please check your input values and try again. Ensure the model file is correct.")
+if metrics:
+    st.subheader("Model Performance Snapshot")
+    metrics_df = pd.DataFrame(metrics)
+    st.dataframe(metrics_df, use_container_width=True, hide_index=True)
 
 st.markdown("---")
-st.caption("Built with Streamlit and Scikit-learn.")
+st.caption("Built with Streamlit, scikit-learn, and XGBoost")
